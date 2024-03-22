@@ -1,0 +1,9 @@
+.{
+    .name = "numto",
+    .version = "23.3.22",
+    .paths = .{
+        "src",
+        "build.zig",
+        "build.zig.zon",
+    },
+}
