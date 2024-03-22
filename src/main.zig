@@ -8,6 +8,25 @@ const Mode = enum {
     oct,
 };
 
+const help =
+    \\usage: numto [FLAG] [NUMBER]
+    \\
+    \\Copyright (c) 2024 Andrij Glyko. All Rights Reserved.
+    \\
+    \\This software is licensed under BSD-3-clause license:
+    \\  https://opensource.org/license/BSD-3-clause
+    \\
+    \\Represent numbers in different systems
+    \\
+    \\Valid flags:
+    \\  -h      Represent NUMBER in hexadecimal
+    \\  -d      Represent NUMBER in decimal
+    \\  -b      Represent NUMBER in binary
+    \\  -o      Represent NUMBER in octal
+    \\  --help  Print this message and exit
+    \\  --max   Print max value for a 64-bit integer and exit
+;
+
 pub fn main() !void {
     var allocator = std.heap.GeneralPurposeAllocator(.{}){};
     var arena = std.heap.ArenaAllocator.init(allocator.allocator());
@@ -27,6 +46,25 @@ pub fn main() !void {
     _ = args.skip();
 
     while (args.next()) |arg| {
+        if (arg.len > 2) {
+            if (arg[0] == '-' and arg[1] == '-') {
+                switch (arg[2]) {
+                    'h' => {
+                        try stdout.print("{s}\n", .{help});
+                        return;
+                    },
+                    'm' => {
+                        const max = std.math.maxInt(i64);
+                        try stdout.print("dec: {d}\nhex: 0x{x}\noct: {o}\nbin: {b}\n", .{ max, max, max, max });
+                        return;
+                    },
+                    else => {
+                        log.err("unknown flag: {s}", .{arg});
+                        return;
+                    },
+                }
+            }
+        }
         if (arg[0] == '-') {
             mode = switch (arg[1]) {
                 'h' => .hex,
@@ -34,7 +72,7 @@ pub fn main() !void {
                 'o' => .oct,
                 'd' => .dec,
                 else => {
-                    log.err("unknown type: {s}", .{arg[0..2]});
+                    log.err("unknown flag: {s}", .{arg[0..2]});
                     return;
                 },
             };
